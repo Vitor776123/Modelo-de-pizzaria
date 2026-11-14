@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* Pizzaria — sistema visual: forno a lenha. Carvão, brasa, tomate, queijo e manjericão. */
+@theme {
+  --color-carvao: #14100d;
+  --color-carvao-2: #1f1813;
+  --color-forno: #2a1d15;
+  --color-brasa: #ff7a2f;
+  --color-tomate: #d6401f;
+  --color-tomate-2: #b3320f;
+  --color-queijo: #f4c24d;
+  --color-manjericao: #4f9a43;
+  --color-creme: #f8efe1;
+  --color-creme-2: #efe2cd;
+  --color-massa: #e8d3b0;
+  --color-suave: #6b5a4b; /* texto secundário sobre creme */
+  --color-linha: #e3d3ba;
+  --color-ok: #2f7d3f;
+  --color-alerta: #a0560f;
+  --color-erro: #b3261e;
+
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Hanken Grotesk Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow-suave: 0 1px 2px rgb(20 16 13 / 0.06), 0 12px 32px -12px rgb(20 16 13 / 0.22);
+}
+
+:root { color-scheme: light; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--color-creme);
+  color: var(--color-carvao);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-queijo); color: var(--color-carvao); }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+p { text-wrap: pretty; }
+
+@layer base {
+  :focus-visible { outline: 2px solid var(--color-tomate); outline-offset: 3px; border-radius: 6px; }
+  .escuro :focus-visible { outline-color: var(--color-queijo); }
+}
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Botões */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 3rem; padding: 0 1.4rem; border-radius: 999px;
+  font-weight: 700; font-size: 1rem; line-height: 1; cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.15s ease;
+  border: 2px solid transparent; text-align: center;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-principal { background: var(--color-tomate); color: #fff; }
+.btn-principal:hover:not(:disabled) { background: var(--color-tomate-2); }
+.btn-queijo { background: var(--color-queijo); color: var(--color-carvao); }
+.btn-queijo:hover:not(:disabled) { background: #ffd05f; }
+.btn-contorno { border-color: var(--color-carvao); color: var(--color-carvao); background: transparent; }
+.btn-contorno:hover:not(:disabled) { background: var(--color-carvao); color: var(--color-creme); }
+.btn-claro { border-color: rgb(255 255 255 / 0.4); color: #fff; background: rgb(255 255 255 / 0.08); backdrop-filter: blur(6px); }
+.btn-pequeno { min-height: 2.25rem; padding: 0 1rem; font-size: 0.9rem; }
+.btn-verde { background: var(--color-manjericao); color: #fff; }
+
+/* Formulários */
+.rotulo { display: block; margin-bottom: 0.35rem; font-size: 0.9rem; font-weight: 700; }
+.campo {
+  width: 100%; min-height: 3rem; padding: 0.6rem 0.9rem; border-radius: 0.9rem;
+  border: 1.5px solid var(--color-linha); background: #fff; color: var(--color-carvao);
+  font: inherit; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.campo:focus { outline: none; border-color: var(--color-tomate); box-shadow: 0 0 0 3px rgb(214 64 31 / 0.18); }
+textarea.campo { min-height: 5rem; resize: vertical; }
+.ajuda { margin-top: 0.3rem; font-size: 0.85rem; color: var(--color-suave); }
+
+/* Selos */
+.selo { display: inline-flex; align-items: center; border-radius: 999px; padding: 0.15rem 0.65rem; font-size: 0.78rem; font-weight: 800; }
+.selo-ok { background: #dff1de; color: #1d5a2a; }
+.selo-alerta { background: #fdebc8; color: #7a420a; }
+.selo-erro { background: #fbe3e1; color: #8c1d17; }
+.selo-neutro { background: #ece3d3; color: #5b4c3c; }
+.selo-info { background: #dbe8fb; color: #1d3f7a; }
+
+/* Feed: uma pizza por tela, rolagem com encaixe, como num Shorts */
+.feed { height: 100dvh; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior-y: contain; scrollbar-width: none; }
+.feed::-webkit-scrollbar { display: none; }
+.slide { height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow: hidden; }
+.sombra-texto { text-shadow: 0 2px 14px rgb(0 0 0 / 0.65); }
+
+@keyframes flutuar { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+.flutuar { animation: flutuar 1.8s ease-in-out infinite; }
+@keyframes subir { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.subir { animation: subir 0.35s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  .flutuar, .subir { animation: none; }
+  html { scroll-behavior: auto; }
+}

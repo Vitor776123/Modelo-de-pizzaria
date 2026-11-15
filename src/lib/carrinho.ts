@@ -102,3 +102,9 @@ export function alterarQuantidade(chave: string, delta: number) {
 export function limparCarrinho() {
   gravar([]);
 }
+
+/** Leitura direta (fora do React), sempre atual: usada pelo chat de pedido. */
+export function itensAgora(): ItemCarrinho[] {
+  ler();
+  return itens;
+}

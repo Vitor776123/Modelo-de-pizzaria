@@ -95,7 +95,7 @@ textarea.campo { min-height: 5rem; resize: vertical; }
 /* Feed: uma pizza por tela, rolagem com encaixe, como num Shorts */
 .feed { height: 100dvh; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; scrollbar-width: none; }
 .feed::-webkit-scrollbar { display: none; }
-.slide { height: 100dvh; scroll-snap-align: start; scroll-snap-stop: normal; position: relative; overflow: hidden; contain: layout paint; }
+.slide { height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; overflow: hidden; contain: layout paint; }
 .sombra-texto { text-shadow: 0 2px 14px rgb(0 0 0 / 0.65); }
 
 @keyframes flutuar { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }

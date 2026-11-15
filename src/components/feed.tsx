@@ -40,9 +40,9 @@ function Slide({ produto, categoria, aberto, primeiro, adicionais, reserva }: { 
   }
 
   return (
-    <article className="slide flex flex-col bg-carvao text-white" data-cat={categoria.id} data-pid={produto.id} aria-label={produto.nome}>
+    <article className="slide flex flex-col bg-carvao text-white lg:flex-row lg:items-center lg:justify-center lg:gap-14 lg:px-12 lg:pt-16" data-cat={categoria.id} data-pid={produto.id} aria-label={produto.nome}>
       {/* foto: ocupa o alto da tela e fica livre de texto; ao dar zoom, toma a tela toda */}
-      <div className={`relative z-10 min-h-0 transition-[flex-grow] duration-300 ${zoom ? "flex-[1_1_100%]" : "flex-[1_1_0%]"}`}>
+      <div className={`relative z-10 min-h-0 transition-[flex-grow] duration-300 lg:aspect-[4/5] lg:h-[min(84dvh,44rem)] lg:flex-none lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl lg:ring-1 lg:ring-white/10 ${zoom ? "flex-[1_1_100%]" : "flex-[1_1_0%]"}`}>
         <ZoomFoto aoMudar={setZoom}>
           {produto.foto_url ? (
             <Image src={produto.foto_url} alt={`Foto da ${produto.nome}`} fill sizes="100vw" priority={primeiro} className="object-cover" draggable={false} />
@@ -52,33 +52,33 @@ function Slide({ produto, categoria, aberto, primeiro, adicionais, reserva }: { 
             </div>
           )}
         </ZoomFoto>
-        <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-carvao to-transparent transition-opacity ${zoom ? "opacity-0" : "opacity-100"}`} />
-        <p className={`pointer-events-none absolute bottom-2 right-3 rounded-full bg-black/45 px-2.5 py-1 text-[0.7rem] font-semibold text-white/80 backdrop-blur transition-opacity ${zoom ? "opacity-0" : "opacity-100"}`}>🔍 toque para ampliar</p>
+        <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-carvao to-transparent transition-opacity lg:hidden ${zoom ? "opacity-0" : "opacity-100"}`} />
+        <p className={`pointer-events-none absolute bottom-2 right-3 rounded-full bg-black/45 px-2.5 py-1 text-[0.7rem] font-semibold text-white/80 backdrop-blur transition-opacity ${zoom ? "opacity-0" : "opacity-100"}`}>🔍 <span className="lg:hidden">toque</span><span className="hidden lg:inline">clique</span> para ampliar</p>
       </div>
 
       {/* painel de informações: compacto, abaixo da foto */}
-      <div className={`relative z-20 shrink-0 overflow-hidden px-4 pt-1 transition-all duration-300 md:mx-auto md:w-full md:max-w-xl ${zoom ? "max-h-0 pb-0 opacity-0" : `-mt-8 max-h-[22rem] bg-gradient-to-b from-transparent via-carvao/90 to-carvao pt-6 opacity-100 ${reserva ? "pb-[4.75rem]" : "pb-4"}`}`}>
+      <div className={`relative z-20 shrink-0 overflow-hidden px-4 pt-1 transition-all duration-300 md:mx-auto md:w-full md:max-w-xl lg:mx-0 lg:w-[26rem] lg:max-w-none lg:flex-none lg:overflow-visible lg:px-0 lg:!max-h-none lg:!opacity-100 ${zoom ? "max-h-0 pb-0 opacity-0" : `-mt-8 max-h-[22rem] lg:!mt-0 lg:!bg-none lg:!pt-0 lg:!pb-0 bg-gradient-to-b from-transparent via-carvao/90 to-carvao pt-6 opacity-100 ${reserva ? "pb-[4.75rem]" : "pb-4"}`}`}>
         <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-queijo">
           {categoria.nome}
           {produto.destaque ? <span className="rounded-full bg-queijo px-2 py-0.5 text-[0.65rem] normal-case tracking-normal text-carvao">Queridinha da casa</span> : null}
         </p>
         <div className="mt-1 flex items-baseline justify-between gap-3">
-          <h2 className="min-w-0 text-[1.65rem] leading-tight">{produto.nome}</h2>
-          <p className="tabular shrink-0 font-display text-2xl font-bold text-queijo">{formatBRL(tamanho.preco_cents)}</p>
+          <h2 className="min-w-0 text-[1.65rem] leading-tight lg:text-4xl">{produto.nome}</h2>
+          <p className="tabular shrink-0 font-display text-2xl font-bold text-queijo lg:text-3xl">{formatBRL(tamanho.preco_cents)}</p>
         </div>
-        {produto.descricao ? <p className="mt-1 line-clamp-2 text-[0.85rem] leading-snug text-white/65">{produto.descricao}</p> : null}
+        {produto.descricao ? <p className="mt-1 line-clamp-2 text-[0.85rem] leading-snug text-white/65 lg:line-clamp-none lg:mt-3 lg:text-base">{produto.descricao}</p> : null}
 
         {produto.tamanhos.length > 1 ? (
-          <div className="mt-3 grid gap-1 rounded-full bg-white/10 p-1" style={{ gridTemplateColumns: `repeat(${produto.tamanhos.length}, minmax(0, 1fr))` }} role="radiogroup" aria-label={`Tamanho de ${produto.nome}`}>
+          <div className="mt-3 grid gap-1 rounded-full bg-white/10 p-1 lg:mt-6" style={{ gridTemplateColumns: `repeat(${produto.tamanhos.length}, minmax(0, 1fr))` }} role="radiogroup" aria-label={`Tamanho de ${produto.nome}`}>
             {produto.tamanhos.map((t) => (
-              <button key={t.id} type="button" role="radio" aria-checked={t.id === escolhido} onClick={() => setEscolhido(t.id)} className={`rounded-full px-1 py-1.5 text-[0.82rem] font-bold transition ${t.id === escolhido ? "bg-queijo text-carvao" : "text-white/80"}`}>
+              <button key={t.id} type="button" role="radio" aria-checked={t.id === escolhido} onClick={() => setEscolhido(t.id)} className={`rounded-full px-1 py-1.5 text-[0.82rem] font-bold transition lg:py-2.5 lg:text-base ${t.id === escolhido ? "bg-queijo text-carvao" : "text-white/80"}`}>
                 {t.nome}
               </button>
             ))}
           </div>
         ) : null}
 
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex gap-2 lg:mt-6">
           {podePersonalizar && aberto ? (
             <button type="button" onClick={() => setFolha(true)} className="btn btn-claro btn-pequeno shrink-0">
               {categoria.permite_meio_a_meio ? "+ Personalizar" : "+ Adicionais"}
@@ -197,7 +197,7 @@ export function Feed({ config, categorias, adicionais }: { config: Config; categ
     <div className="escuro relative bg-carvao text-white">
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
         <div className="pointer-events-auto bg-gradient-to-b from-black/80 to-transparent px-4 pb-6 pt-3 md:px-8">
-          <div className="mx-auto flex max-w-3xl items-center gap-3">
+          <div className="mx-auto flex max-w-3xl items-center gap-3 lg:max-w-6xl">
             <Link href="/" aria-label="Voltar ao início" className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/25 bg-black/30 backdrop-blur">
               <IconeSeta className="h-5 w-5" />
             </Link>

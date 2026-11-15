@@ -55,7 +55,10 @@ export function Inicio({ config, categorias }: { config: Config; categorias: Cat
     <div className="bg-creme text-carvao">
       {/* Abertura */}
       <section className="escuro relative isolate flex min-h-dvh flex-col overflow-hidden bg-carvao px-5 pb-seguro pt-seguro text-white">
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_38%,#5a2f18_0%,#2a1710_38%,#14100d_72%)]" />
+        {/* papel de parede: foto da Margherita */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pizzas/margherita.webp" alt="" aria-hidden className="absolute inset-0 -z-20 h-full w-full object-cover object-[50%_42%]" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-black/70 via-black/10 to-black/90 lg:from-black/65 lg:via-black/40 lg:to-black/90" />
         <header className="flex items-center justify-between gap-3">
           <p className="font-display text-xl font-bold">{config.nome}</p>
           <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold ${config.aberto ? "border-manjericao/60 bg-manjericao/15 text-[#a8e09c]" : "border-white/20 bg-white/10 text-white/80"}`}>
@@ -64,15 +67,9 @@ export function Inicio({ config, categorias }: { config: Config; categorias: Cat
           </span>
         </header>
 
-        <div className="relative my-auto flex flex-col items-center py-6 text-center">
-          <div className="relative h-[17.5rem] w-[17.5rem] sm:h-[24rem] sm:w-[24rem]">
-            <div aria-hidden className="absolute inset-4 rounded-full bg-brasa/25 blur-3xl" />
-            <div className="girar-lento relative h-full w-full overflow-hidden rounded-full shadow-[0_30px_80px_-20px_rgb(0_0_0/0.8)]">
-              <div className="h-full w-full scale-[1.1]"><PizzaDesenho nome={config.nome} /></div>
-            </div>
-          </div>
-          <h1 className="relative mt-8 text-[2.15rem] leading-[1.05] sombra-texto sm:text-6xl">Pizza quente,<br />do forno à sua porta.</h1>
-          <p className="mt-3 max-w-sm text-white/80">{config.slogan}</p>
+        <div className="relative mt-auto flex flex-col items-center pb-6 pt-24 text-center">
+          <h1 className="relative text-[2.35rem] leading-[1.05] sombra-texto sm:text-6xl">Pizza quente,<br />do forno à sua porta.</h1>
+          <p className="mt-3 max-w-sm text-white/85 sombra-texto">{config.slogan}</p>
         </div>
 
         <div className="mx-auto w-full max-w-md space-y-3">

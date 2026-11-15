@@ -15,7 +15,7 @@ function tamanhoPadrao(p: Produto) {
   return p.tamanhos[p.tamanhos.length > 1 ? 1 : 0]?.id ?? "";
 }
 
-function Slide({ produto, categoria, aberto, primeiro, adicionais }: { produto: Produto; categoria: Categoria; aberto: boolean; primeiro: boolean; adicionais: Adicional[] }) {
+function Slide({ produto, categoria, aberto, primeiro, adicionais, reserva }: { produto: Produto; categoria: Categoria; aberto: boolean; primeiro: boolean; adicionais: Adicional[]; reserva: boolean }) {
   const [folha, setFolha] = useState(false);
   const extrasDaCategoria = adicionais.filter((a) => !a.categoria_id || a.categoria_id === categoria.id);
   const podePersonalizar = extrasDaCategoria.length > 0 || (categoria.permite_meio_a_meio && categoria.produtos.length > 1);
@@ -40,59 +40,53 @@ function Slide({ produto, categoria, aberto, primeiro, adicionais }: { produto: 
   }
 
   return (
-    <article className="slide bg-carvao text-white" data-cat={categoria.id} data-pid={produto.id} aria-label={produto.nome}>
-      <ZoomFoto aoMudar={setZoom}>
-        {produto.foto_url ? (
-          <Image src={produto.foto_url} alt={`Foto da ${produto.nome}`} fill sizes="100vw" priority={primeiro} className="object-cover" draggable={false} />
-        ) : (
-          <div className={ehBebida ? "grid h-full place-items-center bg-forno pb-[22rem] text-8xl" : "h-full px-10 pb-[26rem] pt-24"}>
-            {ehBebida ? <span aria-hidden>🥤</span> : <PizzaDesenho nome={produto.nome} doce={doce} />}
-          </div>
-        )}
-      </ZoomFoto>
-
-      <div className={`pointer-events-none absolute inset-x-0 bottom-0 transition-opacity duration-300 ${zoom ? "opacity-0" : "opacity-100"}`}>
-        <div className="bg-gradient-to-t from-black/90 via-black/65 to-transparent px-5 pb-24 pt-28 sm:px-8 md:mx-auto md:max-w-2xl md:pb-12">
-          <div className="pointer-events-auto subir">
-            <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-queijo sombra-texto">
-              {categoria.nome}
-              {produto.destaque ? <span className="selo bg-queijo text-carvao">Queridinha da casa</span> : null}
-            </p>
-            <h2 className="text-4xl sombra-texto sm:text-5xl">{produto.nome}</h2>
-            {produto.descricao ? <p className="mt-2 max-w-md text-[0.98rem] text-white/85 sombra-texto">{produto.descricao}</p> : null}
-
-            {produto.tamanhos.length > 1 ? (
-              <div className="mt-4 flex flex-wrap gap-2" role="radiogroup" aria-label={`Tamanho de ${produto.nome}`}>
-                {produto.tamanhos.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={t.id === escolhido}
-                    onClick={() => setEscolhido(t.id)}
-                    className={`rounded-full border-2 px-4 py-1.5 text-sm font-bold transition ${
-                      t.id === escolhido ? "border-queijo bg-queijo text-carvao" : "border-white/35 bg-black/30 text-white backdrop-blur"
-                    }`}
-                  >
-                    {t.nome}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <p className="tabular font-display text-3xl font-bold sombra-texto">{formatBRL(tamanho.preco_cents)}</p>
-              <button type="button" onClick={adicionar} disabled={!aberto} className={`btn ${feito ? "btn-verde" : "btn-principal"} min-w-44`}>
-                {!aberto ? "Fechado agora" : feito ? "Adicionado ✓" : "Adicionar ao pedido"}
-              </button>
+    <article className="slide flex flex-col bg-carvao text-white" data-cat={categoria.id} data-pid={produto.id} aria-label={produto.nome}>
+      {/* foto: ocupa o alto da tela e fica livre de texto; ao dar zoom, toma a tela toda */}
+      <div className={`relative z-10 min-h-0 transition-[flex-grow] duration-300 ${zoom ? "flex-[1_1_100%]" : "flex-[1_1_0%]"}`}>
+        <ZoomFoto aoMudar={setZoom}>
+          {produto.foto_url ? (
+            <Image src={produto.foto_url} alt={`Foto da ${produto.nome}`} fill sizes="100vw" priority={primeiro} className="object-cover" draggable={false} />
+          ) : (
+            <div className={ehBebida ? "grid h-full place-items-center bg-forno text-8xl" : "h-full px-8 pb-4 pt-20"}>
+              {ehBebida ? <span aria-hidden>🥤</span> : <PizzaDesenho nome={produto.nome} doce={doce} />}
             </div>
-            {podePersonalizar && aberto ? (
-              <button type="button" onClick={() => setFolha(true)} className="btn btn-claro btn-pequeno mt-3">
-                {categoria.permite_meio_a_meio ? "+ Meio a meio, borda e adicionais" : "+ Adicionais"}
+          )}
+        </ZoomFoto>
+        <div className={`pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-carvao to-transparent transition-opacity ${zoom ? "opacity-0" : "opacity-100"}`} />
+        <p className={`pointer-events-none absolute bottom-2 right-3 rounded-full bg-black/45 px-2.5 py-1 text-[0.7rem] font-semibold text-white/80 backdrop-blur transition-opacity ${zoom ? "opacity-0" : "opacity-100"}`}>🔍 toque para ampliar</p>
+      </div>
+
+      {/* painel de informações: compacto, abaixo da foto */}
+      <div className={`relative z-20 shrink-0 overflow-hidden px-4 pt-1 transition-all duration-300 md:mx-auto md:w-full md:max-w-xl ${zoom ? "max-h-0 pb-0 opacity-0" : `-mt-8 max-h-[22rem] bg-gradient-to-b from-transparent via-carvao/90 to-carvao pt-6 opacity-100 ${reserva ? "pb-[4.75rem]" : "pb-4"}`}`}>
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-queijo">
+          {categoria.nome}
+          {produto.destaque ? <span className="rounded-full bg-queijo px-2 py-0.5 text-[0.65rem] normal-case tracking-normal text-carvao">Queridinha da casa</span> : null}
+        </p>
+        <div className="mt-1 flex items-baseline justify-between gap-3">
+          <h2 className="min-w-0 text-[1.65rem] leading-tight">{produto.nome}</h2>
+          <p className="tabular shrink-0 font-display text-2xl font-bold text-queijo">{formatBRL(tamanho.preco_cents)}</p>
+        </div>
+        {produto.descricao ? <p className="mt-1 line-clamp-2 text-[0.85rem] leading-snug text-white/65">{produto.descricao}</p> : null}
+
+        {produto.tamanhos.length > 1 ? (
+          <div className="mt-3 grid gap-1 rounded-full bg-white/10 p-1" style={{ gridTemplateColumns: `repeat(${produto.tamanhos.length}, minmax(0, 1fr))` }} role="radiogroup" aria-label={`Tamanho de ${produto.nome}`}>
+            {produto.tamanhos.map((t) => (
+              <button key={t.id} type="button" role="radio" aria-checked={t.id === escolhido} onClick={() => setEscolhido(t.id)} className={`rounded-full px-1 py-1.5 text-[0.82rem] font-bold transition ${t.id === escolhido ? "bg-queijo text-carvao" : "text-white/80"}`}>
+                {t.nome}
               </button>
-            ) : null}
-            <p className="mt-3 text-xs text-white/60 sombra-texto">Toque na foto para ver de pertinho.</p>
+            ))}
           </div>
+        ) : null}
+
+        <div className="mt-3 flex gap-2">
+          {podePersonalizar && aberto ? (
+            <button type="button" onClick={() => setFolha(true)} className="btn btn-claro btn-pequeno shrink-0">
+              {categoria.permite_meio_a_meio ? "+ Personalizar" : "+ Adicionais"}
+            </button>
+          ) : null}
+          <button type="button" onClick={adicionar} disabled={!aberto} className={`btn btn-pequeno min-w-0 flex-1 ${feito ? "btn-verde" : "btn-principal"}`}>
+            {!aberto ? "Fechado agora" : feito ? "Adicionado ✓" : "Adicionar"}
+          </button>
         </div>
       </div>
       {folha ? (
@@ -231,7 +225,7 @@ export function Feed({ config, categorias, adicionais }: { config: Config; categ
 
       <div ref={feed} className="feed">
         {categorias.flatMap((c) => c.produtos.map((p) => ({ c, p }))).map(({ c, p }, i) => (
-          <Slide key={p.id} produto={p} categoria={c} aberto={config.aberto} primeiro={i === 0} adicionais={adicionais} />
+          <Slide key={p.id} produto={p} categoria={c} aberto={config.aberto} primeiro={i === 0} adicionais={adicionais} reserva={quantidade > 0} />
         ))}
 
         <section className="slide grid place-items-center bg-carvao-2 px-6 text-center">

@@ -4,6 +4,7 @@ import { IconeEngrenagem, IconeEtiqueta, IconeGrafico, IconeLista, IconeMoto, Ic
 export function itensDoMenu(admin: boolean): ItemNav[] {
   return [
     { href: "/painel", rotulo: "Pedidos", icone: <IconeSacola />, principal: true },
+    { href: "/painel/central", rotulo: "Central (tela cheia)", icone: <IconeRelogio /> },
     { href: "/painel/historico", rotulo: "Histórico", icone: <IconeLista />, principal: true },
     ...(admin
       ? [

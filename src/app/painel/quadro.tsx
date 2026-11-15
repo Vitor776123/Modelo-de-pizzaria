@@ -219,6 +219,7 @@ export function Quadro({
         descricao="Atualiza sozinho a cada 10 segundos."
         acao={
           <div className="flex flex-wrap gap-2">
+            <Link href="/painel/central" className="btn btn-pequeno btn-principal">Abrir central</Link>
             <button className={`btn btn-pequeno ${aberto ? "btn-contorno" : "btn-verde"}`} disabled={pendente} onClick={() => agir(() => alternarAberto(!aberto))}>
               {aberto ? "Pausar pedidos" : "Voltar a receber"}
             </button>

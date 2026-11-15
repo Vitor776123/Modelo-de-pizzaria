@@ -27,6 +27,10 @@ function Slide({ produto, categoria, aberto, primeiro, adicionais, reserva }: { 
   const ehBebida = /bebida/i.test(categoria.nome);
 
   function adicionar() {
+    if (podePersonalizar) {
+      setFolha(true);
+      return;
+    }
     adicionarAoCarrinho({
       tamanhoId: tamanho.id,
       produtoId: produto.id,
@@ -79,11 +83,6 @@ function Slide({ produto, categoria, aberto, primeiro, adicionais, reserva }: { 
         ) : null}
 
         <div className="mt-3 flex gap-2 lg:mt-6">
-          {podePersonalizar && aberto ? (
-            <button type="button" onClick={() => setFolha(true)} className="btn btn-claro btn-pequeno shrink-0">
-              {categoria.permite_meio_a_meio ? "+ Personalizar" : "+ Adicionais"}
-            </button>
-          ) : null}
           <button type="button" onClick={adicionar} disabled={!aberto} className={`btn btn-pequeno min-w-0 flex-1 ${feito ? "btn-verde" : "btn-principal"}`}>
             {!aberto ? "Fechado agora" : feito ? "Adicionado ✓" : "Adicionar"}
           </button>

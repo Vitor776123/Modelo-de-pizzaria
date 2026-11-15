@@ -27,6 +27,9 @@ export function Personalizar({
   const [segundoId, setSegundoId] = useState("");
   const [marcados, setMarcados] = useState<Set<string>>(new Set());
   const [obs, setObs] = useState("");
+  const [bordaId, setBordaId] = useState("");
+  const bordas = adicionais.filter((a) => /^borda/i.test(a.nome));
+  const outros = adicionais.filter((a) => !/^borda/i.test(a.nome));
 
   // outros sabores da categoria que têm o mesmo tamanho (mesmo nome) escolhido
   const parceiros = useMemo(
@@ -38,7 +41,7 @@ export function Personalizar({
     [categoria.produtos, produto.id, tamanho.nome],
   );
   const segundo = parceiros.find((x) => x.p.id === segundoId);
-  const extras = adicionais.filter((a) => marcados.has(a.id));
+  const extras = [...bordas.filter((b) => b.id === bordaId), ...outros.filter((a) => marcados.has(a.id))];
   const unit = precoUnitario(tamanho.preco_cents, meio && segundo ? segundo.t.preco_cents : null, extras.map((e) => e.preco_cents));
   const podeMeio = categoria.permite_meio_a_meio && parceiros.length > 0;
   const pronto = !meio || Boolean(segundo);
@@ -94,11 +97,25 @@ export function Personalizar({
           </section>
         ) : null}
 
-        {adicionais.length > 0 ? (
+        {bordas.length > 0 ? (
+          <section className="mb-5" aria-labelledby="p-borda">
+            <h3 id="p-borda" className="mb-2 text-xl">Borda</h3>
+            <div className="space-y-2" role="radiogroup" aria-label="Borda">
+              {[{ id: "", nome: "Sem borda", preco_cents: 0 }, ...bordas].map((b) => (
+                <button key={b.id || "sem"} type="button" role="radio" aria-checked={bordaId === b.id} onClick={() => setBordaId(b.id)} className={`flex w-full items-center justify-between gap-3 rounded-2xl border-2 p-3 text-left ${bordaId === b.id ? "border-tomate bg-white" : "border-linha bg-white/60"}`}>
+                  <span className="font-semibold">{b.nome}</span>
+                  <span className="tabular text-sm text-suave">{b.preco_cents > 0 ? `+ ${formatBRL(b.preco_cents)}` : "grátis"}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {outros.length > 0 ? (
           <section className="mb-5" aria-labelledby="p-ad">
-            <h3 id="p-ad" className="mb-2 text-xl">Borda e adicionais</h3>
+            <h3 id="p-ad" className="mb-2 text-xl">Adicionais</h3>
             <div className="space-y-2">
-              {adicionais.map((a) => (
+              {outros.map((a) => (
                 <label key={a.id} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-3">
                   <span className="font-semibold">{a.nome}</span>
                   <span className="flex items-center gap-3">

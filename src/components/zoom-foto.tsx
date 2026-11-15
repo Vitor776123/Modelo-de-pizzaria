@@ -32,7 +32,8 @@ export function ZoomFoto({ children, aoMudar }: { children: ReactNode; aoMudar?:
   }
 
   function aoPressionar(e: React.PointerEvent) {
-    caixa.current?.setPointerCapture(e.pointerId);
+    // só "prende" o dedo quando já há zoom (passear na foto) ou 2 dedos; senão a rolagem do feed fica livre
+    if (zoom > 1 || ponteiros.current.size >= 1) caixa.current?.setPointerCapture(e.pointerId);
     ponteiros.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (ponteiros.current.size === 1) gesto.current = { ...gesto.current, inicio: Date.now(), moveu: 0 };
     if (ponteiros.current.size === 2) {
@@ -58,12 +59,19 @@ export function ZoomFoto({ children, aoMudar }: { children: ReactNode; aoMudar?:
     if (zoom > 1) setPan((p) => limitar({ x: p.x + dx, y: p.y + dy }, zoom));
   }
 
+  function cancelar(e: React.PointerEvent) {
+    // o navegador assumiu o gesto (rolagem): nunca vira "toque para zoom"
+    ponteiros.current.delete(e.pointerId);
+    gesto.current.moveu = 99;
+    if (ponteiros.current.size === 0) setArrastando(false);
+  }
+
   function aoSoltar(e: React.PointerEvent) {
     const eraUm = ponteiros.current.size === 1;
     ponteiros.current.delete(e.pointerId);
     if (ponteiros.current.size === 0) setArrastando(false);
     const g = gesto.current;
-    if (eraUm && g.moveu < 8 && Date.now() - g.inicio < 400) {
+    if (eraUm && g.moveu < 10 && Date.now() - g.inicio < 350) {
       if (zoom > 1) return definir(1, { x: 0, y: 0 });
       const r = caixa.current!.getBoundingClientRect();
       const dx = e.clientX - (r.left + r.width / 2);
@@ -80,7 +88,7 @@ export function ZoomFoto({ children, aoMudar }: { children: ReactNode; aoMudar?:
       onPointerDown={aoPressionar}
       onPointerMove={aoMover}
       onPointerUp={aoSoltar}
-      onPointerCancel={aoSoltar}
+      onPointerCancel={cancelar}
     >
       <div
         className="h-full w-full will-change-transform"

@@ -28,7 +28,10 @@ export async function salvarBairro(fd: FormData): Promise<Resp> {
     if (!nome.success) throw new Error(nome.error.issues[0]?.message);
     const taxa = paraCentavos(txt(fd, "taxa") || "0");
     if (taxa === null) throw new Error("Informe a taxa como 8,00 (ou 0 para grátis).");
-    const dados = { nome: nome.data, taxa_cents: taxa, ativo: id ? fd.get("ativo") === "on" : true };
+    const tempoTxt = txt(fd, "tempo_min");
+    const tempo = tempoTxt === "" ? null : Number(tempoTxt);
+    if (tempo !== null && (!Number.isInteger(tempo) || tempo < 5 || tempo > 240)) throw new Error("Tempo de entrega: use minutos entre 5 e 240 (ou deixe em branco).");
+    const dados = { nome: nome.data, taxa_cents: taxa, tempo_min: tempo, ativo: id ? fd.get("ativo") === "on" : true };
     const { error } = id ? await db().from("bairros").update(dados).eq("id", id) : await db().from("bairros").insert(dados);
     if (error) throw new Error("Não foi possível salvar o bairro.");
   });

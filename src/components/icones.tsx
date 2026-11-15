@@ -1,0 +1,22 @@
+const t = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+type P = { className?: string };
+const base = "h-5 w-5";
+
+export const IconeRelogio = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>);
+export const IconeMoto = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><circle cx="5.5" cy="17" r="3" /><circle cx="18.5" cy="17" r="3" /><path d="M8.5 17h6l-3-8H8M14.5 17l3-7h2M12 9l-1.5-3H8" /></svg>);
+export const IconeSacola = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6a3 3 0 016 0v2" /></svg>);
+export const IconePino = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>);
+export const IconePix = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M12 3l4 4-4 4-4-4 4-4zM12 13l4 4-4 4-4-4 4-4zM3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" /></svg>);
+export const IconeSeta = ({ className = "h-6 w-6" }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M15 5l-7 7 7 7" /></svg>);
+export const IconeSetaDireita = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M9 5l7 7-7 7" /></svg>);
+export const IconeZap = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M4 20l1.3-4.2A8 8 0 1112 20a8 8 0 01-4-1.1L4 20z" /><path d="M9 9c0 3 3 6 6 6l1-1.5-2-1-1 .8c-1-.4-2-1.4-2.4-2.4l.8-1-1-2L9 9z" /></svg>);
+export const IconeInstagram = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17" cy="7" r=".6" /></svg>);
+export const IconeCarrinho = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M3 4h2.5l2 11h10l2-8H7" /><circle cx="9" cy="19.5" r="1.3" /><circle cx="17" cy="19.5" r="1.3" /></svg>);
+export const IconePizza = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M12 3C7.5 3 4 5 2.5 7L12 21 21.5 7C20 5 16.5 3 12 3z" /><circle cx="9.5" cy="9" r="1" /><circle cx="14.5" cy="9.5" r="1" /><circle cx="12" cy="14" r="1" /></svg>);
+export const IconeCheck = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>);
+export const IconeCasa = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M4 11l8-7 8 7v9H4v-9z" /><path d="M10 20v-6h4v6" /></svg>);
+export const IconeGrafico = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M4 20V10M10 20V4M16 20v-8M22 20H2" /></svg>);
+export const IconeEngrenagem = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" /></svg>);
+export const IconeEtiqueta = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M3 12V4h8l10 10-8 8L3 12z" /><circle cx="7.5" cy="8.5" r="1.2" /></svg>);
+export const IconeLista = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><path d="M9 6.5h11M9 12h11M9 17.5h11" /><circle cx="4.5" cy="6.5" r="1" /><circle cx="4.5" cy="12" r="1" /><circle cx="4.5" cy="17.5" r="1" /></svg>);
+export const IconeMais = ({ className = base }: P) => (<svg viewBox="0 0 24 24" className={className} aria-hidden {...t}><circle cx="5" cy="12" r="1.4" /><circle cx="12" cy="12" r="1.4" /><circle cx="19" cy="12" r="1.4" /></svg>);

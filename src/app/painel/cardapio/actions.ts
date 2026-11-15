@@ -32,7 +32,7 @@ export async function salvarCategoria(fd: FormData): Promise<Resp> {
   return rodar(async () => {
     const id = txt(fd, "id");
     const d = ok(z.object({ nome: z.string().min(2, "Dê um nome à categoria.").max(60), ordem: z.coerce.number().int().min(0).max(999) }).safeParse({ nome: txt(fd, "nome"), ordem: txt(fd, "ordem") || 0 }));
-    const dados = { ...d, ativo: id ? marcado(fd, "ativo") : true };
+    const dados = { ...d, ativo: id ? marcado(fd, "ativo") : true, permite_meio_a_meio: marcado(fd, "permite_meio_a_meio") };
     const { error } = id ? await db().from("categorias").update(dados).eq("id", id) : await db().from("categorias").insert(dados);
     if (error) throw new Error("Não foi possível salvar a categoria.");
   });

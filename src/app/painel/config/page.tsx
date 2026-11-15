@@ -4,6 +4,7 @@ import { getConfig } from "@/lib/cardapio";
 import { FormAcao } from "@/components/form-acao";
 import { deCentavos } from "@/lib/dinheiro";
 import { mpAtivo } from "@/lib/mercadopago";
+import { Titulo } from "@/app/painel/ui";
 import { salvarConfig } from "@/app/painel/config/actions";
 
 export const metadata: Metadata = { title: "Configurações" };
@@ -16,13 +17,10 @@ export default async function Page() {
   await exigirAdmin();
   const c = await getConfig();
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-4xl">Configurações</h1>
-        <p className="mt-1 text-suave">Dados da pizzaria, formas de pedido e de pagamento.</p>
-      </header>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <Titulo titulo="Configurações" descricao="Dados da pizzaria, formas de pedido e de pagamento." />
       <FormAcao acao={salvarConfig} rotulo="Salvar configurações" classeBotao="btn btn-principal" className="space-y-8">
-        <section className="space-y-3 rounded-2xl bg-white p-5 shadow-suave">
+        <section className="space-y-3 rounded-3xl border border-linha bg-white p-5 shadow-suave sm:p-6">
           <h2 className="text-2xl">A pizzaria</h2>
           <div><label className="rotulo" htmlFor="nome">Nome</label><input id="nome" name="nome" className="campo" defaultValue={c.nome} required /></div>
           <div><label className="rotulo" htmlFor="slogan">Frase de apresentação</label><input id="slogan" name="slogan" className="campo" defaultValue={c.slogan} /></div>
@@ -34,7 +32,7 @@ export default async function Page() {
           <div><label className="rotulo" htmlFor="endereco">Endereço (aparece na retirada)</label><input id="endereco" name="endereco" className="campo" defaultValue={c.endereco ?? ""} /></div>
         </section>
 
-        <section className="space-y-3 rounded-2xl bg-white p-5 shadow-suave">
+        <section className="space-y-3 rounded-3xl border border-linha bg-white p-5 shadow-suave sm:p-6">
           <h2 className="text-2xl">Pedidos</h2>
           <div className="flex flex-wrap gap-5"><Caixa nome="aceita_entrega" rotulo="Entrega" marcado={c.aceita_entrega} /><Caixa nome="aceita_retirada" rotulo="Retirada no balcão" marcado={c.aceita_retirada} /></div>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -44,7 +42,7 @@ export default async function Page() {
           </div>
         </section>
 
-        <section className="space-y-3 rounded-2xl bg-white p-5 shadow-suave">
+        <section className="space-y-3 rounded-3xl border border-linha bg-white p-5 shadow-suave sm:p-6">
           <h2 className="text-2xl">Pagamento</h2>
           <div className="flex flex-wrap gap-5">
             <Caixa nome="aceita_pix_online" rotulo="PIX online" marcado={c.aceita_pix_online} />

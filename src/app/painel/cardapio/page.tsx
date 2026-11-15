@@ -4,6 +4,7 @@ import { listarCardapio } from "@/lib/cardapio";
 import { FormAcao } from "@/components/form-acao";
 import { deCentavos } from "@/lib/dinheiro";
 import type { Categoria, Produto } from "@/lib/tipos";
+import { Titulo } from "@/app/painel/ui";
 import { excluirCategoria, excluirProduto, excluirTamanho, salvarCategoria, salvarProduto, salvarTamanho } from "@/app/painel/cardapio/actions";
 
 export const metadata: Metadata = { title: "Cardápio" };
@@ -53,20 +54,18 @@ export default async function Page() {
   const categorias = await listarCardapio({ incluirInativos: true });
   return (
     <div className="space-y-10">
-      <header>
-        <h1 className="text-4xl">Cardápio</h1>
-        <p className="mt-1 text-suave">Tudo o que você salvar aqui aparece na hora no site.</p>
-      </header>
+      <Titulo titulo="Cardápio" descricao="Tudo o que você salvar aqui aparece na hora no site." />
 
       <section aria-labelledby="cat-t" className="space-y-3">
         <h2 id="cat-t" className="text-2xl">Categorias</h2>
         {categorias.map((c) => (
-          <div key={c.id} className="rounded-2xl bg-white p-4 shadow-suave">
+          <div key={c.id} className="rounded-3xl border border-linha bg-white p-5 shadow-suave">
             <FormAcao acao={salvarCategoria} rotulo="Salvar" className="flex flex-wrap items-end gap-3">
               <input type="hidden" name="id" value={c.id} />
               <div className="min-w-48 flex-1"><label className="rotulo" htmlFor={`cn-${c.id}`}>Nome</label><input id={`cn-${c.id}`} name="nome" className="campo" defaultValue={c.nome} required /></div>
               <div className="w-24"><label className="rotulo" htmlFor={`co-${c.id}`}>Ordem</label><input id={`co-${c.id}`} name="ordem" type="number" min={0} className="campo" defaultValue={c.ordem} /></div>
               <label className="flex items-center gap-2 pb-3 text-sm"><input type="checkbox" name="ativo" defaultChecked={c.ativo} /> Visível</label>
+              <label className="flex items-center gap-2 pb-3 text-sm"><input type="checkbox" name="permite_meio_a_meio" defaultChecked={c.permite_meio_a_meio} /> Permite meio a meio</label>
             </FormAcao>
             <FormAcao acao={excluirCategoria} rotulo="Excluir categoria" classeBotao="btn btn-pequeno btn-contorno" confirmar={`Excluir a categoria "${c.nome}"?`}>
               <input type="hidden" name="id" value={c.id} />
@@ -77,6 +76,7 @@ export default async function Page() {
           <FormAcao acao={salvarCategoria} rotulo="Adicionar categoria" className="flex flex-wrap items-end gap-3">
             <div className="min-w-48 flex-1"><label className="rotulo" htmlFor="cat-nova">Nova categoria</label><input id="cat-nova" name="nome" className="campo" placeholder="Ex.: Pizzas especiais" required /></div>
             <div className="w-24"><label className="rotulo" htmlFor="cat-ordem">Ordem</label><input id="cat-ordem" name="ordem" type="number" min={0} className="campo" defaultValue={categorias.length + 1} /></div>
+            <label className="flex items-center gap-2 pb-3 text-sm"><input type="checkbox" name="permite_meio_a_meio" /> Permite meio a meio</label>
           </FormAcao>
         </div>
       </section>

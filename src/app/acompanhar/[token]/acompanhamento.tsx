@@ -98,7 +98,7 @@ export function Acompanhamento({ inicial, config }: { inicial: Pedido; config: C
         <h1 className="mt-1 text-4xl">{status === "cancelado" ? "Pedido cancelado" : status === "entregue" ? "Bom apetite!" : ROTULO_STATUS[status]}</h1>
         {!encerrado && status !== "aguardando_pagamento" ? (
           <p className="mt-2 text-suave">
-            Previsão de cerca de {inicial.tipo === "entrega" ? config.tempo_entrega_min : config.tempo_retirada_min} minutos desde as {hora(inicial.criado_em)}.
+            Previsão de cerca de {inicial.tempo_estimado_min ?? (inicial.tipo === "entrega" ? config.tempo_entrega_min : config.tempo_retirada_min)} minutos desde as {hora(inicial.criado_em)}.
           </p>
         ) : null}
       </header>
@@ -183,12 +183,15 @@ export function Acompanhamento({ inicial, config }: { inicial: Pedido; config: C
             <li key={i.id} className="flex justify-between gap-3 py-2">
               <span>
                 {i.quantidade}× {i.nome} <span className="text-suave">({i.tamanho})</span>
+                {i.extras?.length ? <span className="block text-xs text-suave">+ {i.extras.map((x) => x.nome).join(", ")}</span> : null}
+                {i.observacao ? <span className="block text-xs text-suave">Obs.: {i.observacao}</span> : null}
               </span>
               <span className="tabular">{formatBRL(i.preco_unit_cents * i.quantidade)}</span>
             </li>
           ))}
         </ul>
         <dl className="mt-3 space-y-1 border-t border-linha pt-3 text-sm">
+          {inicial.desconto_cents > 0 ? <div className="flex justify-between text-ok"><dt>Desconto{inicial.cupom_codigo ? ` (${inicial.cupom_codigo})` : ""}</dt><dd className="tabular">− {formatBRL(inicial.desconto_cents)}</dd></div> : null}
           <div className="flex justify-between"><dt className="text-suave">Entrega</dt><dd className="tabular">{formatBRL(inicial.taxa_entrega_cents)}</dd></div>
           <div className="flex justify-between text-base font-bold"><dt>Total</dt><dd className="tabular">{formatBRL(inicial.total_cents)}</dd></div>
           <div className="flex justify-between"><dt className="text-suave">Pagamento</dt><dd>{ROTULO_FORMA[inicial.forma_pagamento]} · {pagamento === "pago" ? "pago" : "a pagar"}</dd></div>

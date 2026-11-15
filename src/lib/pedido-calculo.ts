@@ -7,9 +7,15 @@ export function normalizarTelefone(texto: string): string | null {
   return d.length === 10 || d.length === 11 ? d : null;
 }
 
-export function calcularTotais(itens: { preco_unit_cents: number; quantidade: number }[], taxaEntregaCents: number) {
+export function calcularTotais(itens: { preco_unit_cents: number; quantidade: number }[], taxaEntregaCents: number, descontoCents = 0) {
   const subtotal = itens.reduce((s, i) => s + i.preco_unit_cents * i.quantidade, 0);
-  return { subtotal_cents: subtotal, taxa_entrega_cents: taxaEntregaCents, total_cents: subtotal + taxaEntregaCents };
+  const desconto = Math.min(Math.max(descontoCents, 0), subtotal);
+  return { subtotal_cents: subtotal, desconto_cents: desconto, taxa_entrega_cents: taxaEntregaCents, total_cents: subtotal - desconto + taxaEntregaCents };
+}
+
+/** Preço de uma unidade: meio a meio cobra o sabor mais caro; borda e adicionais somam. */
+export function precoUnitario(baseCents: number, segundoSaborCents: number | null, extrasCents: number[]): number {
+  return Math.max(baseCents, segundoSaborCents ?? 0) + extrasCents.reduce((s, v) => s + v, 0);
 }
 
 /** Etapas que o cliente acompanha, na ordem (estilo iFood). */

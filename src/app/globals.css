@@ -106,3 +106,15 @@ textarea.campo { min-height: 5rem; resize: vertical; }
   .flutuar, .subir { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+/* Tela inicial */
+@keyframes girar { to { transform: rotate(360deg); } }
+.girar-lento { animation: girar 90s linear infinite; }
+@keyframes pulsar { 0%,100% { box-shadow: 0 0 0 0 rgb(79 154 67 / 0.55); } 50% { box-shadow: 0 0 0 7px rgb(79 154 67 / 0); } }
+.ponto-aberto { animation: pulsar 2s ease-in-out infinite; }
+.rolagem-x { display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-inline: 1.25rem; }
+.rolagem-x::-webkit-scrollbar { display: none; }
+.rolagem-x > * { scroll-snap-align: start; flex: none; }
+.pb-seguro { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+.pt-seguro { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+@media (prefers-reduced-motion: reduce) { .girar-lento, .ponto-aberto { animation: none; } }

@@ -15,7 +15,7 @@ function aleatorio(s: number) {
   };
 }
 
-export function PizzaDesenho({ nome, doce = false }: { nome: string; doce?: boolean }) {
+export function PizzaDesenho({ nome, doce = false, cobrir = false }: { nome: string; doce?: boolean; cobrir?: boolean }) {
   const rnd = aleatorio(semente(nome));
   const cobertura = Array.from({ length: 11 }, () => {
     const ang = rnd() * Math.PI * 2;
@@ -28,7 +28,7 @@ export function PizzaDesenho({ nome, doce = false }: { nome: string; doce?: bool
     return { x: 200 + Math.cos(ang) * dist, y: 200 + Math.sin(ang) * dist, rot: rnd() * 180 };
   });
   return (
-    <svg viewBox="0 0 400 400" className="h-full w-full" role="img" aria-label={`Ilustração da pizza ${nome}`}>
+    <svg viewBox="0 0 400 400" preserveAspectRatio={cobrir ? "xMidYMid slice" : "xMidYMid meet"} className="h-full w-full" role="img" aria-label={`Ilustração da pizza ${nome}`}>
       <defs>
         <radialGradient id="queijo" cx="50%" cy="45%" r="60%">
           <stop offset="0" stopColor={doce ? "#6b3a24" : "#ffd96b"} />

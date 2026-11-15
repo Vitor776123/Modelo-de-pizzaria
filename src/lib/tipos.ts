@@ -17,6 +17,10 @@ export type Config = {
   pix_chave: string | null;
   pix_favorecido: string | null;
   qr_pix_url: string | null;
+  usar_horarios: boolean;
+  /** Chave manual do painel (pausar/abrir). `aberto` já considera também o horário automático. */
+  aberto_manual: boolean;
+  fechada_por_horario: boolean;
 };
 
 export type Tamanho = { id: string; produto_id: string; nome: string; preco_cents: number; ordem: number; ativo: boolean };
@@ -33,9 +37,27 @@ export type Produto = {
   tamanhos: Tamanho[];
 };
 
-export type Categoria = { id: string; nome: string; ordem: number; ativo: boolean; produtos: Produto[] };
+export type Categoria = { id: string; nome: string; ordem: number; ativo: boolean; permite_meio_a_meio: boolean; produtos: Produto[] };
 
-export type Bairro = { id: string; nome: string; taxa_cents: number; ativo: boolean };
+export type Adicional = { id: string; categoria_id: string | null; nome: string; preco_cents: number; ordem: number; ativo: boolean };
+
+export type Cupom = {
+  id: string;
+  codigo: string;
+  tipo: "percentual" | "valor";
+  valor: number;
+  minimo_cents: number;
+  validade: string | null;
+  usos_max: number | null;
+  usos: number;
+  ativo: boolean;
+};
+
+export type Horario = { dia_semana: number; abre: string; fecha: string; ativo: boolean };
+
+export type ExtraItem = { nome: string; preco_cents: number };
+
+export type Bairro = { id: string; nome: string; taxa_cents: number; tempo_min: number | null; ativo: boolean };
 
 export type TipoPedido = "entrega" | "retirada";
 export type FormaPagamento = "pix_online" | "dinheiro" | "cartao_entrega";
@@ -72,6 +94,7 @@ export type ItemPedido = {
   quantidade: number;
   preco_unit_cents: number;
   observacao: string | null;
+  extras: ExtraItem[];
 };
 
 export type Pedido = {
@@ -86,6 +109,9 @@ export type Pedido = {
   observacao: string | null;
   subtotal_cents: number;
   taxa_entrega_cents: number;
+  desconto_cents: number;
+  cupom_codigo: string | null;
+  tempo_estimado_min: number | null;
   total_cents: number;
   forma_pagamento: FormaPagamento;
   troco_para_cents: number | null;

@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { Categoria, Config, Produto } from "@/lib/tipos";
+import type { Adicional, Categoria, Config, Produto } from "@/lib/tipos";
+import { Personalizar } from "@/components/personalizar";
+import { IconeCarrinho, IconeSeta } from "@/components/icones";
 import { adicionarAoCarrinho, alterarQuantidade, useCarrinho } from "@/lib/carrinho";
 import { formatBRL } from "@/lib/dinheiro";
 import { PizzaDesenho } from "@/components/pizza-desenho";
@@ -13,7 +15,10 @@ function tamanhoPadrao(p: Produto) {
   return p.tamanhos[p.tamanhos.length > 1 ? 1 : 0]?.id ?? "";
 }
 
-function Slide({ produto, categoria, aberto, primeiro }: { produto: Produto; categoria: Categoria; aberto: boolean; primeiro: boolean }) {
+function Slide({ produto, categoria, aberto, primeiro, adicionais }: { produto: Produto; categoria: Categoria; aberto: boolean; primeiro: boolean; adicionais: Adicional[] }) {
+  const [folha, setFolha] = useState(false);
+  const extrasDaCategoria = adicionais.filter((a) => !a.categoria_id || a.categoria_id === categoria.id);
+  const podePersonalizar = extrasDaCategoria.length > 0 || (categoria.permite_meio_a_meio && categoria.produtos.length > 1);
   const [escolhido, setEscolhido] = useState(tamanhoPadrao(produto));
   const [zoom, setZoom] = useState(false);
   const [feito, setFeito] = useState(false);
@@ -35,12 +40,12 @@ function Slide({ produto, categoria, aberto, primeiro }: { produto: Produto; cat
   }
 
   return (
-    <article className="slide bg-carvao text-white" data-cat={categoria.id} aria-label={produto.nome}>
+    <article className="slide bg-carvao text-white" data-cat={categoria.id} data-pid={produto.id} aria-label={produto.nome}>
       <ZoomFoto aoMudar={setZoom}>
         {produto.foto_url ? (
           <Image src={produto.foto_url} alt={`Foto da ${produto.nome}`} fill sizes="100vw" priority={primeiro} className="object-cover" draggable={false} />
         ) : (
-          <div className={ehBebida ? "grid h-full place-items-center bg-forno pb-64 text-8xl" : "h-full px-6 pb-72 pt-24"}>
+          <div className={ehBebida ? "grid h-full place-items-center bg-forno pb-[22rem] text-8xl" : "h-full px-10 pb-[26rem] pt-24"}>
             {ehBebida ? <span aria-hidden>🥤</span> : <PizzaDesenho nome={produto.nome} doce={doce} />}
           </div>
         )}
@@ -81,10 +86,18 @@ function Slide({ produto, categoria, aberto, primeiro }: { produto: Produto; cat
                 {!aberto ? "Fechado agora" : feito ? "Adicionado ✓" : "Adicionar ao pedido"}
               </button>
             </div>
+            {podePersonalizar && aberto ? (
+              <button type="button" onClick={() => setFolha(true)} className="btn btn-claro btn-pequeno mt-3">
+                {categoria.permite_meio_a_meio ? "+ Meio a meio, borda e adicionais" : "+ Adicionais"}
+              </button>
+            ) : null}
             <p className="mt-3 text-xs text-white/60 sombra-texto">Toque na foto para ver de pertinho.</p>
           </div>
         </div>
       </div>
+      {folha ? (
+        <Personalizar produto={produto} categoria={categoria} tamanhoId={escolhido} adicionais={extrasDaCategoria} fechar={() => setFolha(false)} aoAdicionar={() => { setFeito(true); setTimeout(() => setFeito(false), 1300); navigator.vibrate?.(15); }} />
+      ) : null}
     </article>
   );
 }
@@ -107,21 +120,23 @@ function Gaveta({ aberta, fechar, aberto }: { aberta: boolean; fechar: () => voi
           <>
             <ul className="divide-y divide-linha">
               {itens.map((i) => (
-                <li key={i.tamanhoId} className="flex items-center gap-3 py-3">
+                <li key={i.chave} className="flex items-center gap-3 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{i.nome}</p>
                     <p className="text-sm text-suave">
                       {i.tamanho} · <span className="tabular">{formatBRL(i.preco_cents)}</span>
                     </p>
+                    {i.extras.length > 0 ? <p className="text-xs text-suave">+ {i.extras.map((x) => x.nome).join(", ")}</p> : null}
+                    {i.observacao ? <p className="text-xs text-suave">Obs.: {i.observacao}</p> : null}
                   </div>
                   <div className="flex items-center gap-1 rounded-full border-2 border-carvao">
-                    <button type="button" aria-label={`Menos um ${i.nome}`} onClick={() => alterarQuantidade(i.tamanhoId, -1)} className="grid h-9 w-9 place-items-center text-xl font-bold">
+                    <button type="button" aria-label={`Menos um ${i.nome}`} onClick={() => alterarQuantidade(i.chave, -1)} className="grid h-9 w-9 place-items-center text-xl font-bold">
                       −
                     </button>
                     <span className="tabular w-6 text-center font-bold" aria-live="polite">
                       {i.quantidade}
                     </span>
-                    <button type="button" aria-label={`Mais um ${i.nome}`} onClick={() => alterarQuantidade(i.tamanhoId, 1)} className="grid h-9 w-9 place-items-center text-xl font-bold">
+                    <button type="button" aria-label={`Mais um ${i.nome}`} onClick={() => alterarQuantidade(i.chave, 1)} className="grid h-9 w-9 place-items-center text-xl font-bold">
                       +
                     </button>
                   </div>
@@ -146,7 +161,7 @@ function Gaveta({ aberta, fechar, aberto }: { aberta: boolean; fechar: () => voi
   );
 }
 
-export function Feed({ config, categorias }: { config: Config; categorias: Categoria[] }) {
+export function Feed({ config, categorias, adicionais }: { config: Config; categorias: Categoria[]; adicionais: Adicional[] }) {
   const feed = useRef<HTMLDivElement>(null);
   const [ativa, setAtiva] = useState<string | null>(null);
   const [gaveta, setGaveta] = useState(false);
@@ -174,6 +189,12 @@ export function Feed({ config, categorias }: { config: Config; categorias: Categ
     };
   }, [categorias]);
 
+  useEffect(() => {
+    const pid = new URLSearchParams(window.location.search).get("p");
+    if (!pid) return;
+    feed.current?.querySelector(`[data-pid="${CSS.escape(pid)}"]`)?.scrollIntoView({ block: "start" });
+  }, []);
+
   function irPara(catId: string) {
     feed.current?.querySelector(`[data-cat="${catId}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -183,7 +204,9 @@ export function Feed({ config, categorias }: { config: Config; categorias: Categ
       <header className="pointer-events-none fixed inset-x-0 top-0 z-30">
         <div className="pointer-events-auto bg-gradient-to-b from-black/80 to-transparent px-4 pb-6 pt-3 md:px-8">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
-            <p className="font-display text-xl font-bold sombra-texto">{config.nome}</p>
+            <Link href="/" aria-label="Voltar ao início" className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/25 bg-black/30 backdrop-blur">
+              <IconeSeta className="h-5 w-5" />
+            </Link>
             <nav aria-label="Categorias" className="-mr-2 flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 [scrollbar-width:none]">
               {categorias.map((c) => (
                 <button
@@ -200,33 +223,15 @@ export function Feed({ config, categorias }: { config: Config; categorias: Categ
               ))}
             </nav>
             <button type="button" onClick={() => setGaveta(true)} className="btn btn-claro btn-pequeno shrink-0" aria-label={`Abrir pedido, ${quantidade} itens`}>
-              🛒 <span className="tabular">{quantidade}</span>
+              <IconeCarrinho className="h-5 w-5" /> <span className="tabular">{quantidade}</span>
             </button>
           </div>
         </div>
       </header>
 
       <div ref={feed} className="feed">
-        <section data-hero className="slide grid place-items-center bg-[radial-gradient(circle_at_50%_30%,#4a2a17,#14100d_70%)] px-6 text-center">
-          <div className="max-w-lg">
-            <div className="mx-auto mb-6 h-56 w-56 sm:h-64 sm:w-64">
-              <PizzaDesenho nome={config.nome} />
-            </div>
-            <span className={`selo mb-3 ${config.aberto ? "bg-manjericao text-white" : "bg-white/15 text-white"}`}>{config.aberto ? "Aberto agora" : "Fechado no momento"}</span>
-            <h1 className="text-5xl sombra-texto sm:text-6xl">{config.nome}</h1>
-            <p className="mt-3 text-lg text-white/85">{config.slogan}</p>
-            <p className="mt-2 text-sm text-white/60">{config.horario_texto}</p>
-            <p className="mt-8 flex flex-col items-center gap-1 text-sm font-semibold text-queijo">
-              Role para ver o cardápio
-              <span aria-hidden className="flutuar text-2xl">
-                ↓
-              </span>
-            </p>
-          </div>
-        </section>
-
         {categorias.flatMap((c) => c.produtos.map((p) => ({ c, p }))).map(({ c, p }, i) => (
-          <Slide key={p.id} produto={p} categoria={c} aberto={config.aberto} primeiro={i === 0} />
+          <Slide key={p.id} produto={p} categoria={c} aberto={config.aberto} primeiro={i === 0} adicionais={adicionais} />
         ))}
 
         <section className="slide grid place-items-center bg-carvao-2 px-6 text-center">

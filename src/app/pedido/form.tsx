@@ -6,7 +6,8 @@ import { useMemo, useState, useTransition } from "react";
 import type { Bairro, Config, FormaPagamento, TipoPedido } from "@/lib/tipos";
 import { limparCarrinho, useCarrinho } from "@/lib/carrinho";
 import { formatBRL } from "@/lib/dinheiro";
-import { finalizarPedido } from "@/app/pedido/actions";
+import { guardarUltimoPedido } from "@/components/ultimo-pedido";
+import { conferirCupom, finalizarPedido } from "@/app/pedido/actions";
 
 export function FormPedido({ config, bairros }: { config: Config; bairros: Bairro[] }) {
   const router = useRouter();
@@ -23,12 +24,31 @@ export function FormPedido({ config, bairros }: { config: Config; bairros: Bairr
   const [bairroId, setBairroId] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, iniciar] = useTransition();
+  const [codigoCupom, setCodigoCupom] = useState("");
+  const [cupom, setCupom] = useState<{ codigo: string; desconto_cents: number } | null>(null);
+  const [erroCupom, setErroCupom] = useState<string | null>(null);
+  const [conferindo, iniciarCupom] = useTransition();
 
-  const taxa = tipo === "entrega" ? (bairros.find((b) => b.id === bairroId)?.taxa_cents ?? 0) : 0;
-  const total = subtotal + taxa;
+  const bairro = bairros.find((b) => b.id === bairroId);
+  const taxa = tipo === "entrega" ? (bairro?.taxa_cents ?? 0) : 0;
+  // o desconto mostrado vale para o subtotal em que o cupom foi conferido; se o carrinho mudar, o cupom sai
+  const desconto = cupom ? Math.min(cupom.desconto_cents, subtotal) : 0;
+  const total = subtotal - desconto + taxa;
   const abaixoDoMinimo = subtotal < config.pedido_minimo_cents;
-  const prazo = tipo === "entrega" ? config.tempo_entrega_min : config.tempo_retirada_min;
+  const prazo = tipo === "entrega" ? (bairro?.tempo_min ?? config.tempo_entrega_min) : config.tempo_retirada_min;
   const resumo = useMemo(() => itens.map((i) => `${i.quantidade}× ${i.nome} (${i.tamanho})`).join(", "), [itens]);
+
+  function aplicarCupom() {
+    setErroCupom(null);
+    iniciarCupom(async () => {
+      const r = await conferirCupom(codigoCupom, subtotal);
+      if (!r.ok) {
+        setCupom(null);
+        return setErroCupom(r.erro);
+      }
+      setCupom({ codigo: r.codigo, desconto_cents: r.desconto_cents });
+    });
+  }
 
   if (itens.length === 0) {
     return (
@@ -56,10 +76,18 @@ export function FormPedido({ config, bairros }: { config: Config; bairros: Bairr
         forma,
         trocoPara: String(f.get("troco") ?? ""),
         observacao: String(f.get("observacao") ?? ""),
-        itens: itens.map((i) => ({ tamanhoId: i.tamanhoId, quantidade: i.quantidade })),
+        cupom: cupom?.codigo,
+        itens: itens.map((i) => ({
+          tamanhoId: i.tamanhoId,
+          tamanho2Id: i.tamanho2Id,
+          adicionaisIds: i.extras.map((x) => x.id),
+          quantidade: i.quantidade,
+          observacao: i.observacao,
+        })),
       });
       if (!r.ok) return setErro(r.erro);
       limparCarrinho();
+      guardarUltimoPedido(r.token);
       router.push(`/acompanhar/${r.token}`);
     });
   }
@@ -94,7 +122,7 @@ export function FormPedido({ config, bairros }: { config: Config; bairros: Bairr
           {tipos.map((t) => (
             <button key={t} type="button" role="radio" aria-checked={tipo === t} onClick={() => setTipo(t)} className={`rounded-2xl border-2 p-4 text-left transition ${tipo === t ? "border-tomate bg-white shadow-suave" : "border-linha bg-white/60"}`}>
               <span className="block font-bold">{t === "entrega" ? "Entrega" : "Retirada"}</span>
-              <span className="text-sm text-suave">{t === "entrega" ? `cerca de ${config.tempo_entrega_min} min` : `pronto em ${config.tempo_retirada_min} min`}</span>
+              <span className="text-sm text-suave">{t === "entrega" ? `cerca de ${bairro?.tempo_min ?? config.tempo_entrega_min} min` : `pronto em ${config.tempo_retirada_min} min`}</span>
             </button>
           ))}
         </div>
@@ -110,7 +138,7 @@ export function FormPedido({ config, bairros }: { config: Config; bairros: Bairr
                 <option value="">Escolha o bairro</option>
                 {bairros.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.nome} · entrega {formatBRL(b.taxa_cents)}
+                    {b.nome} · entrega {formatBRL(b.taxa_cents)}{b.tempo_min ? ` · ${b.tempo_min} min` : ""}
                   </option>
                 ))}
               </select>
@@ -147,9 +175,22 @@ export function FormPedido({ config, bairros }: { config: Config; bairros: Bairr
         </div>
       </section>
 
+      <section className="space-y-2" aria-labelledby="s-cupom">
+        <h2 id="s-cupom" className="text-2xl">Cupom de desconto</h2>
+        <div className="flex gap-2">
+          <input id="cupom" aria-label="Código do cupom" className="campo uppercase" value={codigoCupom} onChange={(e) => { setCodigoCupom(e.target.value); setCupom(null); setErroCupom(null); }} placeholder="Ex.: BEMVINDO10" maxLength={30} />
+          <button type="button" className="btn btn-contorno shrink-0" onClick={aplicarCupom} disabled={conferindo || !codigoCupom.trim()}>
+            {conferindo ? "Conferindo…" : "Aplicar"}
+          </button>
+        </div>
+        {cupom ? <p role="status" className="text-sm font-semibold text-ok">Cupom {cupom.codigo} aplicado: você economiza {formatBRL(cupom.desconto_cents)}.</p> : null}
+        {erroCupom ? <p role="alert" className="text-sm font-semibold text-[#8c1d17]">{erroCupom}</p> : null}
+      </section>
+
       <section className="rounded-3xl bg-white p-5 shadow-suave" aria-label="Resumo">
         <dl className="space-y-2 text-[0.98rem]">
           <div className="flex justify-between"><dt className="text-suave">Itens</dt><dd className="tabular">{formatBRL(subtotal)}</dd></div>
+          {desconto > 0 ? <div className="flex justify-between text-ok"><dt>Desconto ({cupom?.codigo})</dt><dd className="tabular">− {formatBRL(desconto)}</dd></div> : null}
           <div className="flex justify-between"><dt className="text-suave">Entrega</dt><dd className="tabular">{tipo === "entrega" ? (bairroId ? formatBRL(taxa) : "escolha o bairro") : "grátis (retirada)"}</dd></div>
           <div className="flex justify-between border-t border-linha pt-3 text-xl font-bold"><dt>Total</dt><dd className="tabular font-display">{formatBRL(total)}</dd></div>
         </dl>
